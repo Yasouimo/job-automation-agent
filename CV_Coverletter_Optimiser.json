@@ -1,0 +1,624 @@
+{
+  "name": "CV_Coverletter_Optimiser",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1a1a1a1a-0001-4000-8000-000000000001",
+              "name": "MY_NAME",
+              "value": "Yahya BELLMIR",
+              "type": "string"
+            },
+            {
+              "id": "1a1a1a1a-0001-4000-8000-000000000002",
+              "name": "MY_ADDRESS",
+              "value": "Meknès, Maroc  <-- EDIT ME with your full mailing address",
+              "type": "string"
+            },
+            {
+              "id": "1a1a1a1a-0001-4000-8000-000000000003",
+              "name": "MY_PHONE",
+              "value": "+212 7 78 66 40 75",
+              "type": "string"
+            },
+            {
+              "id": "1a1a1a1a-0001-4000-8000-000000000004",
+              "name": "MY_EMAIL",
+              "value": "yahyabellmir@gmail.com",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "name": "Add Static Info",
+      "typeVersion": 3.4,
+      "position": [
+        -848,
+        656
+      ],
+      "id": "ab3a40be-f09c-4c0a-9d7d-dc2d3eb2b86e"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "name": "Wait For Both Docs",
+      "typeVersion": 3.2,
+      "position": [
+        -208,
+        496
+      ],
+      "id": "1cb17950-7598-4965-bd48-bf0696e0fdd2"
+    },
+    {
+      "parameters": {
+        "path": "ddba5d90-d6f8-47e4-822f-bb7dd280645a",
+        "formTitle": "Ultimate Job App Automator",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Company Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Job Description",
+              "fieldType": "textarea",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Upload Baseline CV",
+              "fieldType": "file",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "name": "Form Trigger1",
+      "typeVersion": 2,
+      "position": [
+        -1536,
+        496
+      ],
+      "id": "344b7d6c-6834-4ff0-91a5-4d96c3d7f158",
+      "webhookId": "ddba5d90-d6f8-47e4-822f-bb7dd280645a"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "=Upload_Baseline_CV",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "name": "Extract Text from CV1",
+      "typeVersion": 1,
+      "position": [
+        -1312,
+        496
+      ],
+      "id": "e183ab75-b9b9-4e15-83bf-ce4ff952ff00"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "meta-llama/llama-3.1-8b-instruct",
+          "mode": "list",
+          "cachedResultName": "META-LLAMA/LLAMA-3.1-8B-INSTRUCT"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are an expert tech recruiter. Analyze the BASELINE CV TEXT and JOB DESCRIPTION. Output a single flat JSON object (no markdown). The output keys must EXACTLY match: TARGET_JOB_TITLE, TAILORED_SUMMARY, VINCI_B1, VINCI_B2, VINCI_B3, VINCI_B4, DECLIC_B1, DECLIC_B2, DECLIC_B3, RADEM_B1, RADEM_B2, PROJET_TEST_B1, PROJET_TEST_B2, PROJET_PLAGIAT_B1, PROJET_PLAGIAT_B2, PROJET_MULTI_B1, PROJET_MULTI_B2, SUBJECT, GREETING, PARAGRAPH_1, PARAGRAPH_2, PARAGRAPH_3, PARAGRAPH_4, PARAGRAPH_5, CLOSING, CITY, DATE. \n\nCRITICAL: Keep all CV bullets strictly under 115 characters.",
+              "role": "system"
+            },
+            {
+              "content": "=COMPANY: {{ $items(\"Form Trigger1\")[0].json.Company_Name }}\n\nJOB DESCRIPTION:\n{{ $items(\"Form Trigger1\")[0].json.Job_Description }}\n\nBASELINE CV:\n{{ $json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "name": "Generate Content1",
+      "typeVersion": 1.2,
+      "position": [
+        -1104,
+        496
+      ],
+      "id": "829e7b18-1da4-4ad9-9a9c-b3e787f955eb",
+      "credentials": {
+        "openAiApi": {
+          "id": "6qc5yEBN0d53RnI6",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $input.first().json.message.content;\n\n// Find where the JSON object actually starts and ends\nconst startIndex = text.indexOf('{');\nconst endIndex = text.lastIndexOf('}');\n\nif (startIndex === -1 || endIndex === -1) {\n  throw new Error(\"Could not find a valid JSON object in the AI's response.\");\n}\n\n// Slice out only the pure JSON text between { and }\nconst jsonString = text.substring(startIndex, endIndex + 1);\nconst data = JSON.parse(jsonString);\n\n// Pull the company name from the form trigger\nconst form = $('Form Trigger1').first().json;\ndata.COMPANY = form.Company_Name || form['Company Name'] || data.COMPANY || '';\n\nreturn { json: data };"
+      },
+      "type": "n8n-nodes-base.code",
+      "name": "Parse JSON1",
+      "typeVersion": 2,
+      "position": [
+        -848,
+        496
+      ],
+      "id": "54d4bde5-e6e2-4559-b7c4-b8256d7aa5b7"
+    },
+    {
+      "parameters": {
+        "operation": "copy",
+        "fileId": {
+          "__rl": true,
+          "value": "https://docs.google.com/document/d/1S0qXVyCuEJ0r2BkobPqYPWfWBNEHoLDmAN1mmtTzqmQ/edit?usp=drive_web&ouid=110595909540528989992",
+          "mode": "url"
+        },
+        "name": "=CV_Bellmir_Yahya_{{ $json.COMPANY }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "name": "Copy CV Template1",
+      "typeVersion": 3,
+      "position": [
+        -656,
+        384
+      ],
+      "id": "0ae664df-f34e-44c9-870b-58ab5be889e2",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "GoUarFwlAOhfjCaq",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "copy",
+        "fileId": {
+          "__rl": true,
+          "value": "https://docs.google.com/document/d/1_DDnvZ6NM4x_FrHxex9q5Mv2yDY4ftQsUJx4-P7gW4o/edit?tab=t.0",
+          "mode": "url"
+        },
+        "name": "=Cover_Letter_Bellmir_Yahya_{{ $json.COMPANY }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "name": "Copy Cover Letter Template1",
+      "typeVersion": 3,
+      "position": [
+        -656,
+        592
+      ],
+      "id": "6e14efe1-49cb-4fc1-99f4-f016084c9650",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "GoUarFwlAOhfjCaq",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "replaceAll",
+              "text": "{{TARGET_JOB_TITLE}}",
+              "replaceText": "={{ $('Parse JSON1').item.json.TARGET_JOB_TITLE }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{TAILORED_SUMMARY}}",
+              "replaceText": "={{ $('Parse JSON1').item.json.TAILORED_SUMMARY }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{VINCI_B1}}",
+              "replaceText": "={{ $('Parse JSON1').item.json.VINCI_B1 }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{VINCI_B2}}",
+              "replaceText": "={{ $('Parse JSON1').item.json.VINCI_B2 }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{VINCI_B3}}",
+              "replaceText": "={{ $('Parse JSON1').item.json.VINCI_B3 }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{VINCI_B4}}",
+              "replaceText": "={{ $('Parse JSON1').item.json.VINCI_B4 }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{DECLIC_B1}}",
+              "replaceText": "={{ $('Parse JSON1').item.json.DECLIC_B1 }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{DECLIC_B2}}",
+              "replaceText": "={{ $('Parse JSON1').item.json.DECLIC_B2 }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{DECLIC_B3}}",
+              "replaceText": "={{ $('Parse JSON1').item.json.DECLIC_B3 }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{RADEM_B1}}",
+              "replaceText": "={{ $('Parse JSON1').item.json.RADEM_B1 }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{RADEM_B2}}",
+              "replaceText": "={{ $('Parse JSON1').item.json.RADEM_B2 }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{PROJET_TEST_B1}}",
+              "replaceText": "={{ $('Parse JSON1').item.json.PROJET_TEST_B1 }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{PROJET_TEST_B2}}",
+              "replaceText": "={{ $('Parse JSON1').item.json.PROJET_TEST_B2 }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{PROJET_PLAGIAT_B1}}",
+              "replaceText": "={{ $('Parse JSON1').item.json.PROJET_PLAGIAT_B1 }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{PROJET_PLAGIAT_B2}}",
+              "replaceText": "={{ $('Parse JSON1').item.json.PROJET_PLAGIAT_B2 }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{PROJET_MULTI_B1}}",
+              "replaceText": "={{ $('Parse JSON1').item.json.PROJET_MULTI_B1 }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{PROJET_MULTI_B2}}",
+              "replaceText": "={{ $('Parse JSON1').item.json.PROJET_MULTI_B2 }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "name": "Fill CV (Add all variables here)1",
+      "typeVersion": 2,
+      "position": [
+        -432,
+        384
+      ],
+      "id": "194f150f-e0f6-43d5-882f-bdf9477e645c",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "fIvIA1qZ9HB5u1Jv",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "replaceAll",
+              "text": "{{MY_NAME}}",
+              "replaceText": "={{ $('Add Static Info').item.json.MY_NAME }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{MY_ADDRESS}}",
+              "replaceText": "={{ $('Add Static Info').item.json.MY_ADDRESS }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{MY_PHONE}}",
+              "replaceText": "={{ $('Add Static Info').item.json.MY_PHONE }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{MY_EMAIL}}",
+              "replaceText": "={{ $('Add Static Info').item.json.MY_EMAIL }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{COMPANY}}",
+              "replaceText": "={{ $('Parse JSON1').item.json.COMPANY }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{CITY}}",
+              "replaceText": "={{ $('Parse JSON1').item.json.CITY }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{DATE}}",
+              "replaceText": "={{ $('Parse JSON1').item.json.DATE }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{SUBJECT}}",
+              "replaceText": "={{ $('Parse JSON1').item.json.SUBJECT }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{GREETING}}",
+              "replaceText": "={{ $('Parse JSON1').item.json.GREETING }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{PARAGRAPH_1}}",
+              "replaceText": "={{ $('Parse JSON1').item.json.PARAGRAPH_1 }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{PARAGRAPH_2}}",
+              "replaceText": "={{ $('Parse JSON1').item.json.PARAGRAPH_2 }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{PARAGRAPH_3}}",
+              "replaceText": "={{ $('Parse JSON1').item.json.PARAGRAPH_3 }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{PARAGRAPH_4}}",
+              "replaceText": "={{ $('Parse JSON1').item.json.PARAGRAPH_4 }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{PARAGRAPH_5}}",
+              "replaceText": "={{ $('Parse JSON1').item.json.PARAGRAPH_5 }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{CLOSING}}",
+              "replaceText": "={{ $('Parse JSON1').item.json.CLOSING }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "name": "Fill Cover Letter (Add all variables here)1",
+      "typeVersion": 2,
+      "position": [
+        -432,
+        592
+      ],
+      "id": "c6d58010-cb45-4781-ab1b-ee8d377e76e8",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "fIvIA1qZ9HB5u1Jv",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1SJwn0KUKCTk3jd8LQFLz9chEzyCgdF2RBVR2Rq6Vsbo/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SJwn0KUKCTk3jd8LQFLz9chEzyCgdF2RBVR2Rq6Vsbo/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Company": "={{ $('Parse JSON1').item.json.COMPANY }}",
+            "CV Link": "={{ $('Copy CV Template1').item.json.webViewLink || ('https://docs.google.com/document/d/' + $('Copy CV Template1').item.json.id + '/edit') }}",
+            "Cover Letter Link": "={{ $('Copy Cover Letter Template1').item.json.webViewLink || ('https://docs.google.com/document/d/' + $('Copy Cover Letter Template1').item.json.id + '/edit') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CV Link",
+              "displayName": "CV Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Cover Letter Link",
+              "displayName": "Cover Letter Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "name": "Save to Google Sheets1",
+      "typeVersion": 4,
+      "position": [
+        16,
+        496
+      ],
+      "id": "5de2feb5-b3eb-44e8-9de0-ce098178f306",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "07QCUWqWN4xfwPFk",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Add Static Info": {
+      "main": [
+        [
+          {
+            "node": "Copy CV Template1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Copy Cover Letter Template1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait For Both Docs": {
+      "main": [
+        [
+          {
+            "node": "Save to Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Form Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Extract Text from CV1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Text from CV1": {
+      "main": [
+        [
+          {
+            "node": "Generate Content1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Content1": {
+      "main": [
+        [
+          {
+            "node": "Parse JSON1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse JSON1": {
+      "main": [
+        [
+          {
+            "node": "Add Static Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Copy CV Template1": {
+      "main": [
+        [
+          {
+            "node": "Fill CV (Add all variables here)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Copy Cover Letter Template1": {
+      "main": [
+        [
+          {
+            "node": "Fill Cover Letter (Add all variables here)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fill CV (Add all variables here)1": {
+      "main": [
+        [
+          {
+            "node": "Wait For Both Docs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fill Cover Letter (Add all variables here)1": {
+      "main": [
+        [
+          {
+            "node": "Wait For Both Docs",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "65d20613-1335-4af1-8c98-e391c308fc8f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "27424f57ae59802b3b26d0e35253be3b4eac281ddac23911e6e4d62d03c29f8b"
+  },
+  "nodeGroups": [],
+  "id": "9QtIg2IEtGGWWDfc",
+  "tags": []
+}
