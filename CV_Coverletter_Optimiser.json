@@ -14,7 +14,7 @@
             {
               "id": "1a1a1a1a-0001-4000-8000-000000000002",
               "name": "MY_ADDRESS",
-              "value": "Meknès, Maroc  <-- EDIT ME with your full mailing address",
+              "value": "Meknès, Maroc ",
               "type": "string"
             },
             {
@@ -111,14 +111,14 @@
       "parameters": {
         "modelId": {
           "__rl": true,
-          "value": "meta-llama/llama-3.1-8b-instruct",
+          "value": "nvidia/nemotron-3-super-120b-a12b",
           "mode": "list",
-          "cachedResultName": "META-LLAMA/LLAMA-3.1-8B-INSTRUCT"
+          "cachedResultName": "NVIDIA/NEMOTRON-3-SUPER-120B-A12B"
         },
         "messages": {
           "values": [
             {
-              "content": "You are an expert tech recruiter. Analyze the BASELINE CV TEXT and JOB DESCRIPTION. Output a single flat JSON object (no markdown). The output keys must EXACTLY match: TARGET_JOB_TITLE, TAILORED_SUMMARY, VINCI_B1, VINCI_B2, VINCI_B3, VINCI_B4, DECLIC_B1, DECLIC_B2, DECLIC_B3, RADEM_B1, RADEM_B2, PROJET_TEST_B1, PROJET_TEST_B2, PROJET_PLAGIAT_B1, PROJET_PLAGIAT_B2, PROJET_MULTI_B1, PROJET_MULTI_B2, SUBJECT, GREETING, PARAGRAPH_1, PARAGRAPH_2, PARAGRAPH_3, PARAGRAPH_4, PARAGRAPH_5, CLOSING, CITY, DATE. \n\nCRITICAL: Keep all CV bullets strictly under 115 characters.",
+              "content": "You are an expert tech recruiter tailoring a CV and cover letter for one specific job.\n\nStep 1: Silently identify the 6-8 most important skills/requirements in the JOB DESCRIPTION.\nStep 2: Rewrite every CV bullet to foreground the baseline experience that matches those requirements. Do not reuse the baseline's exact phrasing — reformulate each bullet in different words while keeping every fact, number, and technology 100% truthful. Never invent achievements. Prioritize bullets/skills most relevant to this job; keep unrelated ones brief.\nStep 3: Every single bullet value must be ONE line, MAX 115 characters (including spaces), so the CV stays one page. Count characters before finalizing each bullet — if over 115, shorten it.\nStep 4: For the cover letter, SUBJECT must be a full sentence: \"Candidature au poste de X chez Y\" (not just the job title).\n\nOutput ONLY a single flat JSON object. No markdown, no code fences, no commentary before or after. Every value must be a plain string. Use EXACTLY these keys, and every key must be present even if short:\n\nCV keys:\nTARGET_JOB_TITLE, TAILORED_SUMMARY,\nVINCI_B1, VINCI_B2, VINCI_B3, VINCI_B4,\nDECLIC_B1, DECLIC_B2, DECLIC_B3,\nRADEM_B1, RADEM_B2,\nPROJET_TEST_B1, PROJET_TEST_B2,\nPROJET_PLAGIAT_B1, PROJET_PLAGIAT_B2,\nPROJET_MULTI_B1, PROJET_MULTI_B2\n\nCover letter keys:\nSUBJECT, GREETING, PARAGRAPH_1, PARAGRAPH_2, PARAGRAPH_3, PARAGRAPH_4, PARAGRAPH_5, CLOSING, CITY, DATE\n\nCITY should be the city where the CV_/cover letter is issued from (Meknès unless context suggests otherwise). DATE should be today's date in French format (e.g. \"17 septembre 2026\").",
               "role": "system"
             },
             {
@@ -613,7 +613,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "65d20613-1335-4af1-8c98-e391c308fc8f",
+  "versionId": "cc6854d4-8aaa-49eb-9ad0-26cfd58bf630",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "27424f57ae59802b3b26d0e35253be3b4eac281ddac23911e6e4d62d03c29f8b"
