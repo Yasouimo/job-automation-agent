@@ -195,3 +195,6 @@ Treat the baseline CV as the factual source. Strengthen the prompt if necessary,
 - Keep API credentials out of this repository and out of exported workflow files shared publicly.
 - Review every generated CV and cover letter for accuracy, tone, and correct company details.
 
+## Next steps
+
+Add an email automated delivery system using zapier to fully automate the process
