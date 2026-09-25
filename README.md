@@ -191,12 +191,10 @@ Inspect both Google Docs branches. Confirm that both copy nodes and both update 
 
 Treat the baseline CV as the factual source. Strengthen the prompt if necessary, review generated documents before sending them, and never rely on automation as a substitute for human verification.
 
-## Privacy and Responsible Use
-
-This workflow processes contact details, employment history, job descriptions, and uploaded CVs through external services configured in n8n. Before using it with real applications:
-
-- Review the privacy, retention, and data-processing policies of your model provider and Google Workspace.
 - Use least-privilege OAuth accounts and restrict access to generated documents and the tracking sheet.
 - Keep API credentials out of this repository and out of exported workflow files shared publicly.
 - Review every generated CV and cover letter for accuracy, tone, and correct company details.
 
+## Next steps
+
+Add an email automated delivery system using zapier to fully automate the process
