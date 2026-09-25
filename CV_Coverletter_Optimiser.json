@@ -8,25 +8,25 @@
             {
               "id": "1a1a1a1a-0001-4000-8000-000000000001",
               "name": "MY_NAME",
-              "value": "Yahya BELLMIR",
+              "value": "={{ $('Form Trigger1').item.json.Your_Name || $('Form Trigger1').item.json['Your Name'] || '' }}",
               "type": "string"
             },
             {
               "id": "1a1a1a1a-0001-4000-8000-000000000002",
               "name": "MY_ADDRESS",
-              "value": "Meknès, Maroc ",
+              "value": "={{ $('Form Trigger1').item.json.Your_Address || $('Form Trigger1').item.json['Your Address'] || '' }}",
               "type": "string"
             },
             {
               "id": "1a1a1a1a-0001-4000-8000-000000000003",
               "name": "MY_PHONE",
-              "value": "+212 7 78 66 40 75",
+              "value": "={{ $('Form Trigger1').item.json.Your_Phone || $('Form Trigger1').item.json['Your Phone'] || '' }}",
               "type": "string"
             },
             {
               "id": "1a1a1a1a-0001-4000-8000-000000000004",
               "name": "MY_EMAIL",
-              "value": "yahyabellmir@gmail.com",
+              "value": "={{ $('Form Trigger1').item.json.Your_Email || $('Form Trigger1').item.json['Your Email'] || '' }}",
               "type": "string"
             }
           ]
