@@ -197,4 +197,4 @@ Treat the baseline CV as the factual source. Strengthen the prompt if necessary,
 
 ## Next steps
 
-Add an email automated delivery system using zapier to fully automate the process
+Add an email automated delivery system using zapier to fully automate the process using GmailAPI
